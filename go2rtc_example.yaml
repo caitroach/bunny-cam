@@ -1,0 +1,6 @@
+streams:
+  bunnies: rtsp://localhost:8554/[CAMERA_ID]_live
+api:
+  listen: "127.0.0.1:1984"
+rtsp:
+  listen: ""

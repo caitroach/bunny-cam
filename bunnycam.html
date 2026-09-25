@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>live bunny reaction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bubblegum: #ff8fc7;
+    --lilac: #c3b1ff;
+    --mint: #a8f5d6;
+    --cloud: #fff7fb;
+    --plum: #3d1a4f;
+    --live: #ff3b5c;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--plum);
+    font-family: "Baloo 2", "Comic Sans MS", system-ui, sans-serif;
+    color: var(--plum);
+    overflow: hidden;
+  }
+
+  /* the cute frame */
+  .frame {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    background:
+      repeating-conic-gradient(var(--bubblegum) 0 25%, var(--lilac) 0 50%) 0 0 / 14px 14px;
+    border-radius: 14px;
+  }
+
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px 6px 10px;
+    background: var(--cloud);
+    border: 2px solid var(--plum);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+  }
+  .titlebar h1 {
+    flex: 1;
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .close {
+    width: 24px; height: 24px;
+    border: 2px solid var(--plum);
+    border-radius: 50%;
+    background: var(--bubblegum);
+    color: var(--plum);
+    font: 800 14px/1 "Baloo 2", sans-serif;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--plum);
+    transition: transform .1s;
+  }
+  .close:hover { background: var(--live); color: var(--cloud); }
+  .close:active { transform: translate(2px, 2px); box-shadow: none; }
+  .close:focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; }
+
+  .screen {
+    position: relative;
+    flex: 1;
+    background: #000;
+    border: 2px solid var(--plum);
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+  .screen iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0;
+  transform: scale(1.5);          /* how much to zoom in */
+  transform-origin: 70% 95%;    /* where the pen is */
+}
+
+  /* LIVE badge */
+  .live {
+    position: absolute; top: 8px; left: 8px;
+    display: flex; align-items: center; gap: 5px;
+    padding: 1px 8px 0;
+    background: var(--live);
+    color: #fff;
+    font-family: "Silkscreen", monospace;
+    font-size: 11px;
+    border: 2px solid var(--plum);
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .live::before {
+    content: ""; width: 7px; height: 7px;
+    border-radius: 50%; background: #fff;
+    animation: blink 1.2s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* reaction sticker — click to change it */
+  .reaction {
+    position: absolute; bottom: 8px; right: 8px;
+    max-width: 70%;
+    padding: 2px 10px 0;
+    background: var(--mint);
+    border: 2px solid var(--plum);
+    border-radius: 12px 12px 2px 12px;
+    font-weight: 800; font-size: 13px;
+    box-shadow: 2px 2px 0 var(--plum);
+    cursor: pointer;
+    transform: rotate(-3deg);
+  }
+  .reaction:focus-visible { outline: 3px solid var(--bubblegum); outline-offset: 2px; }
+
+  /* shown when no stream link is set */
+  .empty {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    padding: 16px;
+    text-align: center;
+    color: var(--cloud);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .empty code { color: var(--mint); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live::before { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="titlebar">
+      <h1>🐰 live bunny reaction 🥕</h1>
+      <button class="close" id="close" aria-label="Close bunny cam">×</button>
+    </div>
+    <div class="screen" id="screen">
+      <div class="live">live</div>
+      <button class="reaction" id="reaction" title="click for a new reaction">they're so round</button>
+    </div>
+  </div>
+
+<script>
+  // ✏️ Paste your stream player link here.
+  // go2rtc (built into ring-mqtt) example:
+  //   "http://localhost:1984/stream.html?src=YOUR_CAMERA&mode=webrtc"
+  const STREAM_URL = "http://localhost:1984/stream.html?src=bunnies&mode=webrtc";
+
+  const screen = document.getElementById("screen");
+  if (STREAM_URL) {
+    const f = document.createElement("iframe");
+    f.src = STREAM_URL;
+    f.allow = "autoplay";
+    screen.prepend(f);
+  } else {
+    const msg = document.createElement("div");
+    msg.className = "empty";
+    msg.innerHTML = "no bunnies yet :(<br>add your stream link to <code>STREAM_URL</code>";
+    screen.prepend(msg);
+  }
+
+  // reactions — add your own!
+  const reactions = [
+    "they're so round",
+    "BINKY ALERT!!",
+    "loaf mode activated",
+    "eating hay aggressively",
+    "zoomies 0_o",
+    "suspicious nose wiggles",
+    "sleeping (flopped)",
+    "judging me >_<"
+  ];
+  let i = 0;
+  const r = document.getElementById("reaction");
+  r.addEventListener("click", () => {
+    i = (i + 1) % reactions.length;
+    r.textContent = reactions[i];
+  });
+
+  // X button
+  document.getElementById("close").addEventListener("click", () => {
+    window.close();
+    setTimeout(() => { r.textContent = "can't close myself! press Alt+F4 :P"; }, 150);
+  });
+</script>
+</body>
+</html>
