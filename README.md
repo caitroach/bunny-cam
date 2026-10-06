@@ -5,6 +5,7 @@ I'm away at university right now and I miss my two bunnies very much. We have a 
 
 <img width="2877" height="1797" alt="ye" src="https://github.com/user-attachments/assets/09cb2b54-4c6f-4aba-85ca-ab8bdd8ace89" />
 
+This ONLY WORKS FOR FEDORA and I refuse to acknowledge macOS or Windows. make the switch or no pet camera for you, i don't wanna figure that out...
 
 ## how it works 
 This uses Ring-MQTT, an open-source bridge that connects Ring cameras and doorbells to local applications. mosquitto is the MQTT broker that Ring-MQTT needs to run. 
