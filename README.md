@@ -16,6 +16,8 @@ This uses Ring-MQTT, an open-source bridge that connects Ring cameras and doorbe
 4. bunnycam.sh starts everything, and if you configure your Autostart settings, you can boot it up automatically at login.
 
 ## setup from scratch
+pay attention u have to do a lot of stuff here.
+
 1. Install stuff. Run:
    ```
    sudo dnf install mosquitto mpv chromium
